@@ -8,54 +8,8 @@ IMPORTANT: This describes how to test using the framework shipped with 6.12.0 (w
 
 All the code for this Guide is available here: https://github.com/enonic/guide-testing-apps.
 
-== Add Dependency
-
-First you will need to add the Enonic XP testing dependency to your project. Right now it's only available
-for 6.12.0-SNAPSHOT.
-
-[source, groovy]
-----
-dependencies {
-  testCompile 'com.enonic.xp:testing:6.12.0-SNAPSHOT'
-}
-----
-
-== Testing a Library
-
-Let's start with a simple library which is just a plain JavaScript file with some exports. This library here
-has a function returning a Fibonacci-sequence.
-
-.src/main/resources/lib/fibonacci.js
-[source, javascript]
-----
-include::../src/main/resources/lib/fibonacci.js[]
-----
-
-We can write a couple of tests for this. Let's test the function for a couple of inputs.
-
-.src/test/resources/lib/fibonacci-test.js
-[source, javascript]
-----
-include::../src/test/resources/lib/fibonacci-test.js[]
-----
-
-Every exported function that is prefixed with `test` is executed as a separate test. You can also export
-`before` and `after` if you need to execute some logic before or after each test.
-
-But, to be able to execute this test you will also need to write a little "bootstrap" code in Java. Here's
-how this will look for this particular test:
-
-.src/test/java/com/enonic/guide/FibonacciTest.java
-[source, java]
-----
-include::../src/test/java/com/enonic/guide/FibonacciTest.java[]
-----
-
-== Testing a Controller
-
-...
-
-== Mocking Services
-
-...
+include::dependency.adoc[]
+include::library.adoc[]
+include::controller.adoc[]
+include::mocking.adoc[]
 
