@@ -1,15 +1,110 @@
-= Testing Libraries and Applications
+= Testing Applications and Libraries
 
-This guide describes how to test libraries and applications using Enonic XP testing framework. It is based
-on JUnit and requires a mix between Java and JavaScript. You need to bootstrap the tests using Java and
+This guide describes how to test libraries and applications using the Enonic XP test framework. It is based
+on JUnit and uses a mix of Java and JavaScript. Tests must be bootstrapped with Java and
 then you can write all your tests using pure JavaScript.
 
-IMPORTANT: This describes how to test using the framework shipped with 6.12.0 (which is not yet released).
+IMPORTANT: The test framework requires Enonic XP 6.12 or newer
 
-All the code for this Guide is available here: https://github.com/enonic/guide-testing-apps.
+All code samples for this Guide is available on Github: https://github.com/enonic/guide-testing-apps.
 
-include::dependency.adoc[]
-include::library.adoc[]
-include::controller.adoc[]
-include::mocking.adoc[]
+== Add Dependency
 
+First you will need to add the Enonic XP testing dependency to your project.
+
+[source, groovy]
+----
+dependencies {
+  testCompile 'com.enonic.xp:testing:6.12.0' <1>
+}
+----
+
+<1> The testing framework ships with the XP core, replace version number with the version of XP you are compiling for.
+
+== Testing a Library
+
+Let's start with a simple library which is just a plain JavaScript file with some exports. This library here
+has a function returning a Fibonacci-sequence.
+
+.src/main/resources/lib/fibonacci.js
+[source, javascript]
+----
+include::../src/main/resources/lib/fibonacci.js[]
+----
+
+We can write a couple of tests for this. Let's test the function for a couple of inputs.
+
+.src/test/resources/lib/fibonacci-test.js
+[source, javascript]
+----
+include::../src/test/resources/lib/fibonacci-test.js[]
+----
+
+Every exported function that is prefixed with `test` is executed as a separate test. You can also export
+`before` and `after` if you need to execute some logic before or after each test.
+
+But, to be able to execute this test you will also need to write a little "bootstrap" code in Java. Here's
+how this will look for this particular test:
+
+.src/test/java/com/enonic/guide/FibonacciTest.java
+[source, java]
+----
+include::../src/test/java/com/enonic/guide/FibonacciTest.java[]
+----
+
+== Testing a Controller
+
+Testing controllers is identical to what is described in the previous section. For this example we have
+a simple service that serves a GET request.
+
+.src/main/resources/services/hello/hello.js
+[source, javascript]
+----
+include::../src/main/resources/services/hello/hello.js[]
+----
+
+Let's write a test that tests two conditions: one where the parameter is not set and another one where
+the parameter is set.
+
+.src/test/resources/services/hello/hello-test.js
+[source, javascript]
+----
+include::../src/test/resources/services/hello/hello-test.js[]
+----
+
+Again, to execute the test we need a little bit of Java.
+
+.src/test/java/com/enonic/guide/HelloServiceTest.java
+[source, java]
+----
+include::../src/test/java/com/enonic/guide/HelloServiceTest.java[]
+----
+
+== Mocking Services
+
+Sometimes it can be useful to mock certain libraries so it's easier to test. Let's say we depend on a library
+that gives us the time of day. To fix the return value in our tests we need to mock this library.
+
+.src/main/resources/lib/time.js
+[source, javascript]
+----
+include::../src/main/resources/lib/time.js[]
+----
+
+Our service that uses the time is like this:
+
+.src/main/resources/services/clock/clock.js
+[source, javascript]
+----
+include::../src/main/resources/services/clock/clock.js[]
+----
+
+To be able to test this we need to mock our time library in our test so we can return a fixed result.
+
+.src/test/resources/services/clock/clock-test.js
+[source, javascript]
+----
+include::../src/test/resources/services/clock/clock-test.js[]
+----
+<1> Mock the time library so we can control the output.
+<2> Clock service uses the time library in code. It will get the mocked version.
