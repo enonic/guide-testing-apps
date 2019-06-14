@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'jacoco'
     id 'maven'
-    id 'com.enonic.defaults' version '1.0.3'
-    id 'com.enonic.xp.doc' version '1.0.7'
+    id 'com.enonic.defaults' version '2.0.1'
+    id 'com.enonic.xp.doc' version '2.0.0'
 }
 
 apply plugin: 'com.enonic.xp.doc'
@@ -14,6 +14,5 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    testCompile "com.enonic.xp:testing:6.12.0-SNAPSHOT"
+    testCompile "com.enonic.xp:testing:7.0.0"
 }
