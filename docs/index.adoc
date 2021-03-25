@@ -108,3 +108,71 @@ include::../src/test/resources/services/clock/clock-test.js[]
 ----
 <1> Mock the time library so we can control the output.
 <2> Clock service uses the time library in code. It will get the mocked version.
+
+In a slightly bigger scenario, we might want to mock a module and have the same function mock-return different subsequent values for different scenarios and tests. There is a trick to this:
+
+NOTE: To have a mocked function return different values in different tests (within the same test module, `myModuleTest.js` below), repeated `t.mock` calls _must use the same object instance_ (`mockedImportedFuncs` below) across the calls to hold the mocked functions, and replace the functions (mutate the holding object) before re-calling `t.mock` with the holding object. Also, `t.mock` must have been called before importing the mock-consuming module (`myModule.js` below).
+
+**For example:**
+
+.src/main/resources/lib/valueCreator.js:
+[source, javascript]
+----
+exports.getValue = function() {
+    return Math.random(); 
+}
+----
+
+The output of `getValue` is used in:
+
+.src/main/resources/services/myModule/myModule.js:
+[source, javascript]
+----
+const valueCreator = require('/lib/valueCreator.js');
+
+exports.get = function() {
+    const value = valueCreator.getValue();
+    if (value < .5) {
+        return "Low";
+    } else {
+        return "High";
+    }
+}
+----
+
+`valueCreator.getValue()` is too unpredictable to test how it affects the behavior in `myModule.get`, so that is what we want to mock when testing it different scenarios. Here, we'll make the holding object `mockedImportedFuncs` global, and make a `mockGetValue` function to wrap the mocking for each test - re-using `mockedImportedFuncs` across `t.mock` calls:
+
+.src/test/resources/services/myModule/myModuleTest.js:
+[source, javascript]
+----
+const t = require('/lib/xp/testing');
+
+const mockedImportedFuncs = {};
+t.mock('/lib/valueCreator', mockedImportedFuncs);
+
+// Import the module under test AFTER running t.mock once:
+const service = require('./myModule');
+
+function mockGetValue(mockedReturn) {
+    mockedImportedFuncs.getValue = function() {
+        return mockedReturn;
+    }
+    t.mock('/lib/valueCreator', mockedImportedFuncs);
+}
+
+exports.testMocked1 = () => {
+    mockGetValue(0);
+    const highOrLow = service.get();
+    t.assertEquals("Low", highOrLow);
+}
+exports.testMocked2= () => {
+    mockGetValue(1);
+    const highOrLow = service.get();
+    t.assertEquals("High", highOrLow);
+}
+exports.testMockHalf = () => {
+    mockGetValue(0.5);
+    const highOrLow = service.get();
+    t.assertEquals("High", highOrLow);
+}
+----
