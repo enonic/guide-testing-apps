@@ -15,7 +15,7 @@ First you will need to add the Enonic XP testing dependency to your project.
 [source, groovy]
 ----
 dependencies {
-  testCompile 'com.enonic.xp:testing:6.12.0' <1>
+  testImplementation 'com.enonic.xp:testing:6.12.0' <1>
 }
 ----
 
