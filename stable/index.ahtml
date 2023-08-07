@@ -505,7 +505,17 @@ has a function returning a Fibonacci-sequence.</p>
 <div class="listingblock">
 <div class="title">src/main/resources/lib/fibonacci.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/main/resources/lib/fibonacci.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">function fibonacci(n) {
+    var fib = [0, 1];
+    for (var i = fib.length; i &lt; n; i++) {
+        fib[i] = fib[i - 2] + fib[i - 1];
+    }
+
+    return fib;
+}
+
+// Export the function.
+exports.fibonacci = fibonacci;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -514,7 +524,18 @@ has a function returning a Fibonacci-sequence.</p>
 <div class="listingblock">
 <div class="title">src/test/resources/lib/fibonacci-test.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/test/resources/lib/fibonacci-test.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var lib = require('./fibonacci');
+var t = require('/lib/xp/testing');
+
+exports.testSequence4 = function () {
+    var result = lib.fibonacci(4);
+    t.assertJson([0, 1, 1, 2], result);
+};
+
+exports.testSequence6 = function () {
+    var result = lib.fibonacci(6);
+    t.assertJson([0, 1, 1, 2, 3, 5], result);
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -528,7 +549,19 @@ how this will look for this particular test:</p>
 <div class="listingblock">
 <div class="title">src/test/java/com/enonic/guide/FibonacciTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">Unresolved directive in index.adoc - include::../src/test/java/com/enonic/guide/FibonacciTest.java[]</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">package com.enonic.guide;
+
+import com.enonic.xp.testing.ScriptRunnerSupport;
+
+public class FibonacciTest
+    extends ScriptRunnerSupport
+{
+    @Override
+    public String getScriptTestFile()
+    {
+        return "/lib/fibonacci-test.js";
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -543,7 +576,12 @@ a simple service that serves a GET request.</p>
 <div class="listingblock">
 <div class="title">src/main/resources/services/hello/hello.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/main/resources/services/hello/hello.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.get = function (req) {
+    return {
+        body: 'Hello ' + (req.params.name || 'World'),
+        contentType: 'text/plain'
+    };
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -553,7 +591,28 @@ the parameter is set.</p>
 <div class="listingblock">
 <div class="title">src/test/resources/services/hello/hello-test.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/test/resources/services/hello/hello-test.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var service = require('./hello');
+var t = require('/lib/xp/testing');
+
+exports.testParam = function () {
+    var result = service.get({
+        params: {
+            name: 'Donald'
+        }
+    });
+
+    t.assertEquals('Hello Donald', result.body);
+    t.assertEquals('text/plain', result.contentType);
+};
+
+exports.testNoParam = function () {
+    var result = service.get({
+        params: {}
+    });
+
+    t.assertEquals('Hello World', result.body);
+    t.assertEquals('text/plain', result.contentType);
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -562,7 +621,19 @@ the parameter is set.</p>
 <div class="listingblock">
 <div class="title">src/test/java/com/enonic/guide/HelloServiceTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">Unresolved directive in index.adoc - include::../src/test/java/com/enonic/guide/HelloServiceTest.java[]</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">package com.enonic.guide;
+
+import com.enonic.xp.testing.ScriptRunnerSupport;
+
+public class HelloServiceTest
+    extends ScriptRunnerSupport
+{
+    @Override
+    public String getScriptTestFile()
+    {
+        return "/services/hello/hello-test.js";
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -577,7 +648,9 @@ that gives us the time of day. To fix the return value in our tests we need to m
 <div class="listingblock">
 <div class="title">src/main/resources/lib/time.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/main/resources/lib/time.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.now = function () {
+    return new Date().toISOString();
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -586,7 +659,13 @@ that gives us the time of day. To fix the return value in our tests we need to m
 <div class="listingblock">
 <div class="title">src/main/resources/services/clock/clock.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/main/resources/services/clock/clock.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var time = require('/lib/time');
+
+exports.get = function () {
+    return {
+        body: 'Time is ' + time.now()
+    };
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -595,7 +674,20 @@ that gives us the time of day. To fix the return value in our tests we need to m
 <div class="listingblock">
 <div class="title">src/test/resources/services/clock/clock-test.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">Unresolved directive in index.adoc - include::../src/test/resources/services/clock/clock-test.js[]</code></pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var t = require('/lib/xp/testing');
+
+t.mock('/lib/time.js', { <i class="conum" data-value="1"></i><b>(1)</b>
+    now: function () {
+        return '2017-08-01T12:13:24.000Z';
+    }
+});
+
+exports.testClock = function () {
+    var service = require('./clock'); <i class="conum" data-value="2"></i><b>(2)</b>
+
+    var result = service.get();
+    t.assertEquals('Time is 2017-08-01T12:13:24.000Z', result.body);
+};</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -697,7 +789,7 @@ exports.testMockHalf = () =&gt; {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-08-04 09:32:56 UTC
+Last updated 2023-08-07 09:49:55 UTC
 </div>
 </div>
 </body>
