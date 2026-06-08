@@ -1,5 +1,5 @@
 plugins {
-    id 'com.enonic.xp.base' version '3.6.2'
+    id 'com.enonic.xp.base' version '4.0.0'
     id 'java'
     id 'jacoco'
 }
